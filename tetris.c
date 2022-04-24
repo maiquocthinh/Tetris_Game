@@ -7,7 +7,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define LEFT_KEY 75 // ASCII codes corresponding to certain keys
+#define LEFT_KEY 75 // ma ASCII tuong ung voi cac phm bam
 #define RIGHT_KEY 77
 #define UP_KEY 72
 #define DOWN_KEY 80
@@ -15,7 +15,7 @@
 #define PAUSE_KEY 112
 #define ROTATE_KEY UP_KEY
 
-// Coordinate of tetris' board, Next shape box, Score box
+// Toa do cua Game Board, Next Shape, Score
 #define BOARD_COORD_X 0
 #define BOARD_COORD_Y 0
 #define NEXT_COORD_X 30
@@ -23,12 +23,13 @@
 #define SCORE_COORD_X 30
 #define SCORE_COORD_Y 10
 
+// Chieu rong va chieu cao cua Game Board
 #define TETRIS_BOARD_WIDTH 10
 #define TETRIS_BOARD_HEIGHT 20
 
-#define DEFAULT_TIMER 500000 // 500000 microseconds = half a second
+#define DEFAULT_TIMER 500000 // 500000 microseconds = 1/2 second
 
-// shape (tetromino) struct definition
+// Dinh nghia struct Shape (Tetromino)
 typedef struct
 {
 	char **shape_matrix;  // stores the shape of the tetromino in a char matrix
@@ -36,14 +37,14 @@ typedef struct
 	short x, y;			  // x and y coordinates of the location of tetromino
 } Shape;
 
-// Tetris struct definition
+// Dinh nghia struct Tetris
 typedef struct
 {
-	char board[TETRIS_BOARD_HEIGHT][TETRIS_BOARD_WIDTH]; // game board
-	unsigned int score, timer;							 // score and timer
+	char board[TETRIS_BOARD_HEIGHT][TETRIS_BOARD_WIDTH]; // Ma tran Game Board
+	unsigned int score, timer;							 // Diem va thoi gian (Game Tick)
 } Tetris;
 
-// 7 tetrominos that are going to be used throughout the game
+// 7 khoi tetromino cua game Tetris
 const Shape Tetrominos[7] = {
 	{.shape_matrix = (char *[]){(char[]){0, 0, 0, 0},
 								(char[]){1, 1, 1, 1},
@@ -122,14 +123,20 @@ void MoveCursorToXY(unsigned short x, unsigned short y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
+// set mau cho chu
+void SetColor(int a)
+{
+	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(handle, a);
+}
+
 // man hinh mo dau Game
 void OpeningScreen()
 {
 	system("cls");
-	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	int i;
 	int key_input;
-	SetConsoleTextAttribute(handle, 9);
+	SetColor(9);
 	MoveCursorToXY(1, 2);
 	printf("%c", 218);
 	for (i = 0; i < 50; i++)
@@ -137,9 +144,9 @@ void OpeningScreen()
 	printf("%c", 191);
 	MoveCursorToXY(1, 3);
 	printf("%c", 179);
-	SetConsoleTextAttribute(handle, 4);
+	SetColor(4);
 	printf("                   T E T R I S                    ");
-	SetConsoleTextAttribute(handle, 9);
+	SetColor(9);
 	printf("%c", 179);
 	MoveCursorToXY(1, 4);
 	printf("%c", 192);
@@ -147,7 +154,7 @@ void OpeningScreen()
 		printf("%c", 196);
 	printf("%c", 217);
 
-	SetConsoleTextAttribute(handle, 14);
+	SetColor(14);
 	MoveCursorToXY(6, 6);
 	printf("[*] Press 's' to Start Game");
 	MoveCursorToXY(6, 7);
@@ -157,7 +164,7 @@ void OpeningScreen()
 	MoveCursorToXY(6, 9);
 	printf("[*] Press 'Esc' to Exit Game");
 	MoveCursorToXY(0, 11);
-	SetConsoleTextAttribute(handle, 7);
+	SetColor(7);
 	while (1)
 	{
 		switch (getch())
@@ -204,8 +211,7 @@ void InstructionsScreen()
 // in ra man hinh hieu ung loading
 void LoadingScreen()
 {
-	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(handle, 11); // set mau xanh duong cho chu
+	SetColor(11);
 	MoveCursorToXY(16, 14);
 	printf("Loading...");
 	MoveCursorToXY(10, 15);
@@ -216,10 +222,10 @@ void LoadingScreen()
 		printf("%c", 178);
 	}
 	system("cls");
-	SetConsoleTextAttribute(handle, 7); // set mau chu lai binh thuong
+	SetColor(7);
 }
 
-// updates the frame of the Tetris game
+// cap nhat frame (khung hinh) cua game Tetris
 void UpdateFrame()
 {
 	struct timeval before, after;
@@ -400,18 +406,17 @@ void GetNewShape()
 		current = next;
 		next = CopyShape(Tetrominos[rand() % 7]);
 	}
-	// current->x = rand() % (TETRIS_BOARD_WIDTH - current->width + 1); //radom coordinate x of shape when it first appeared
 	current->x = (TETRIS_BOARD_WIDTH - current->width + 1) / 2; // set coordinate x of shape is center when it first appeared
-	// check
-	if (!CheckPosition(current))
-		game_on_flag = FALSE;
+	// kiem tra vi tri cua khoi Tetromino moi lay random
+	if (!CheckPosition(current)) // neu vi tri cham thanh phia tre cua Game Board
+		game_on_flag = FALSE;	 // game off-> game over
 }
 
 // nhan ban mot Shape rieng biet
 Shape *CopyShape(const Shape shape)
 {
-	Shape *copy = (Shape *)malloc(sizeof(Shape));
-	copy->width = shape.width;
+	Shape *copy = (Shape *)malloc(sizeof(Shape)); // cap phat bo nho cho bien
+	copy->width = shape.width;					  // gian cac gia tri cua bien shape cho bien copy
 	copy->y = shape.y;
 	copy->x = shape.x;
 	copy->shape_matrix = (char **)malloc(copy->width * sizeof(char *));
@@ -443,9 +448,9 @@ unsigned short CheckPosition(Shape *shape)
 		for (j = 0; j < shape->width; j++)
 			if (shape->shape_matrix[i][j])
 			{
-				if (shape->x + j < 0 || shape->x + j >= TETRIS_BOARD_WIDTH || shape->y + i >= TETRIS_BOARD_HEIGHT) // if out of board boundaries
+				if (shape->x + j < 0 || shape->x + j >= TETRIS_BOARD_WIDTH || shape->y + i >= TETRIS_BOARD_HEIGHT) // neu ra khoi ranh gio cua Game Board
 					return FALSE;
-				else if (tetris.board[shape->y + i][shape->x + j]) // if another piece occupies the given position
+				else if (tetris.board[shape->y + i][shape->x + j]) // neu mot khoi khac chiem vi tri nhat dinh
 					return FALSE;
 			}
 	return TRUE;
@@ -496,12 +501,12 @@ void CheckRows()
 // quay khoi tetromino theo chieu kim dong ho
 void RotateShape(Shape *shape)
 {
-	Shape *temp = CopyShape(*shape);
+	Shape *temp = CopyShape(*shape); // tao 1 bien tam thoi
 	unsigned short i, j;
 	for (i = 0; i < shape->width; i++)
 		for (j = 0; j < shape->width; j++)
 			shape->shape_matrix[i][j] = temp->shape_matrix[shape->width - j - 1][i];
-	DeleteShape(temp);
+	DeleteShape(temp); // xoa va giai phong bien tam thoi
 }
 
 // xu ly cac thao tac nhan cua nguoi choi
@@ -631,11 +636,11 @@ void StartGame()
 	PrintGamePlayUI();							// in man hinh game play
 	GetNewShape();								// lay khoi tetromino moi
 	PrintNextShapeToConsole();					// hien thi khoi tetromino tiep theo
-	UpdateFrame();								//
+	UpdateFrame();								// cap nhat khung hinh
 	RecordScore();								// ghi lai diem cua nguoi choi
 }
 
-// the main function to play Tetris
+// Ham chinh game Tetris
 void PlayTetris()
 {
 	OpeningScreen();
@@ -643,7 +648,6 @@ void PlayTetris()
 
 int main()
 {
-	//	system("mode con: cols=50 lines=25"); // set size cua cua so Console
 	srand((unsigned int)time(NULL)); // khoi dong bo tao random
 	PlayTetris();
 }
