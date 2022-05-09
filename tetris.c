@@ -7,7 +7,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define LEFT_KEY 75 // ma ASCII tuong ung voi cac phm bam
+#define LEFT_KEY 75 // ma ASCII tuong ung voi cac phim bam
 #define RIGHT_KEY 77
 #define UP_KEY 72
 #define DOWN_KEY 80
@@ -373,7 +373,7 @@ void EraseShapeFromConsole()
 			}
 }
 
-// ghi mang Shape vao mang Game Board bang so 0
+// ghi mang Shape vao mang Game Board bang so 1
 void WriteShapeToBoard()
 {
 	unsigned short i, j;
@@ -408,14 +408,14 @@ void GetNewShape()
 	}
 	current->x = (TETRIS_BOARD_WIDTH - current->width + 1) / 2; // set coordinate x of shape is center when it first appeared
 	// kiem tra vi tri cua khoi Tetromino moi lay random
-	if (!CheckPosition(current)) // neu vi tri cham thanh phia tre cua Game Board
-		game_on_flag = FALSE;	 // game off-> game over
+	if (!CheckPosition(current)) // neu vi tri cham thanh phia tren cua Game Board
+		game_on_flag = FALSE;	 // game over
 }
 
 // nhan ban mot Shape rieng biet
 Shape *CopyShape(const Shape shape)
 {
-	Shape *copy = (Shape *)malloc(sizeof(Shape)); // cap phat bo nho cho bien
+	Shape *copy = (Shape *)malloc(sizeof(Shape)); // cap phat bo nho cho bien copy
 	copy->width = shape.width;					  // gian cac gia tri cua bien shape cho bien copy
 	copy->y = shape.y;
 	copy->x = shape.x;
