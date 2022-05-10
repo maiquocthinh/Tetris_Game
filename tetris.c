@@ -95,6 +95,7 @@ Tetris tetris;
 unsigned short game_on_flag = TRUE;
 
 void MoveCursorToXY(unsigned short x, unsigned short y);
+void HideCursor();
 void OpeningScreen();
 void InstructionsScreen();
 void LoadingScreen();
@@ -116,11 +117,21 @@ void ViewRecordScore();
 void StartGame();
 void PlayTetris();
 
+// an con tro
+void HideCursor()
+{
+	CONSOLE_CURSOR_INFO info;
+	info.bVisible = FALSE;
+	info.dwSize = 100;
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
+}
+
 // di chuyen con tro chuot den toa do x,y tren man hinh console
 void MoveCursorToXY(unsigned short x, unsigned short y)
 {
 	COORD coord = (COORD){x, y};
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+	HideCursor();
 }
 
 // set mau cho chu
@@ -234,7 +245,7 @@ void UpdateFrame()
 	{
 		if (kbhit()) // neu nguoi dung bam bat ky phim nao
 		{
-			ControlCurrentShape(getch()); // FPS tang dan, sau khi 1 hang full
+			ControlCurrentShape(getch());
 		}
 		gettimeofday(&after, NULL);
 		if ((unsigned int)(after.tv_sec * 1000000 + after.tv_usec - before.tv_sec * 1000000 - before.tv_usec) > tetris.timer) // neu khoang cach giua before và after lon hon tetris.timer ?
@@ -501,7 +512,7 @@ void CheckRows()
 // quay khoi tetromino theo chieu kim dong ho
 void RotateShape(Shape *shape)
 {
-	Shape *temp = CopyShape(*shape); // tao 1 bien tam thoi
+	Shape *temp = CopyShape(*shape); // copy shape ra 1 bien tam thoi
 	unsigned short i, j;
 	for (i = 0; i < shape->width; i++)
 		for (j = 0; j < shape->width; j++)
@@ -509,7 +520,7 @@ void RotateShape(Shape *shape)
 	DeleteShape(temp); // xoa va giai phong bien tam thoi
 }
 
-// xu ly cac thao tac nhan cua nguoi choi
+// xu ly cac thao tac nhan phim cua nguoi choi
 void ControlCurrentShape(char key)
 {
 	Shape *temp = CopyShape(*current); // sao chep ra 1 bien tam thoi de kiem tra truoc vi tri
